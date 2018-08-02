@@ -1,7 +1,7 @@
 function [remain_best_remo, best_remo_rate]= best_removal(Nr,N_direction, N_failure, tar_cover,...
     r_tra_inx_origin,N_cover)
 
-r_tra_index = zeros(1,Nr); % give each robot_trajectory pair an index
+            r_tra_index = zeros(1,Nr); % give each robot_trajectory pair an index
             for i = 1:Nr
                 r_tra_index(i) = (r_tra_inx_origin{i}(1)-1)*N_direction + r_tra_inx_origin{i}(2); 
             end
