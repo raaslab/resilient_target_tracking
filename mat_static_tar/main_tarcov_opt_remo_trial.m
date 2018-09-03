@@ -211,7 +211,3 @@ end
 %         legend('brute-force', 'resilient', 'greedy','random');
 %         xlabel('number of targets','fontsize',11)
 %         ylabel('coverage number','fontsize',11)   
-        
-  
-  
-  
