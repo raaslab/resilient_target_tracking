@@ -9,6 +9,10 @@ function bf_traj_assign(target_cover)
         global N_uavs N_dir_uav
         global N_fail_uavs 
         
+        global opt_attacked_uavs
+        
+        opt_attacked_uavs = zeros(1, N_fail_uavs); 
+        
         % we pick one trajectory for each robot, and enumerate all the
         % possible cases, 4^6. And index the four trajectories for robot 1 ,2 ...,
         % 6 as (1 2 3 4) (5 6 7 8) (9 10 11 12)...  and find its corresponding
@@ -45,25 +49,30 @@ function bf_traj_assign(target_cover)
         % remaining target set
         %remain_after_kfail = cell(1,col_allcomb); 
         mini_remain_eachcomb = zeros(1, col_allcomb); 
-
+        mini_index_eachcomb = zeros(1, col_allcomb); 
+        
         for i = 1:col_allcomb
            %we also want to get the number of targets tracked before the best
            %removal % calculate the targets tracked by each column combination
            % r_tra_set for each combination
            r_tra_index_eachcomb = cell(1, row_allcomb);
 
-
-           nchoose_kfail_index{i} = nchoosek(all_combina(:,i),N_fail_uavs); 
-
-           for j = 1: row_allcomb
+           %before removal
+           for s = 1: row_allcomb
                %we also want to get the number of targets tracked before the best
                %removal % calculate the targets tracked by each column combination
 
-               r_inx_eachcomb = fix((all_combina(j,i)-1)/N_dir_uav)+1; 
-               tra_inx_eachcomb = mod(all_combina(j,i)-1, N_dir_uav)+1;
-               r_tra_index_eachcomb{j} = [r_inx_eachcomb, tra_inx_eachcomb]; 
-
-
+               r_inx_eachcomb = fix((all_combina(s,i)-1)/N_dir_uav)+1; 
+               tra_inx_eachcomb = mod(all_combina(s,i)-1, N_dir_uav)+1;
+               r_tra_index_eachcomb{s} = [r_inx_eachcomb, tra_inx_eachcomb]; 
+               
+           end
+           [tar_cover_allcomb(i)] = tarcover_uav_traj_assign(target_cover, r_tra_index_eachcomb);           
+           
+           %calculate the all possible removal inside on combination
+           nchoose_kfail_index{i} = nchoosek(all_combina(:,i),N_fail_uavs); 
+           [row_nk, ~] = size(nchoose_kfail_index{i});
+           for j = 1: row_nk
                remain_after_kfail_index{i}(j,:)= setdiff(all_combina(:,i)', nchoose_kfail_index{i}(j,:)); 
                % for each remaining, evaluate which one is minimum
                % calculate the number of tracking for the reamining
@@ -78,14 +87,21 @@ function bf_traj_assign(target_cover)
                            temp_remain_after_kfail{k});
                 end
                  num_remain_after_kfail{i}(j,:) = length(temp_remain_after_kfail{col_remian+1}); 
-           end
+            end
            % calculate the number of targets tracked by each combination
-           [tar_cover_allcomb(i)] = tarcover_uav_traj_assign(target_cover, r_tra_index_eachcomb); 
 
-           mini_remain_eachcomb(i) = min(num_remain_after_kfail{i}); 
-        end
+           [mini_remain_eachcomb(i), mini_index_eachcomb(i)] = min(num_remain_after_kfail{i}); 
+        end      
+        
         bf_remain_best_romo = max(mini_remain_eachcomb); 
         maxi_index = find(bf_remain_best_romo== mini_remain_eachcomb,1);
+       %[bf_remain_best_romo, maxi_index] = max(mini_remain_eachcomb); 
+       
+       % the uav removed are maxi_index  of nchoose_kfail_index and
+       % mini_index_eachcomb(maxi_index)  item. 
+        for i = 1 : N_fail_uavs
+           opt_attacked_uavs(i) = fix((nchoose_kfail_index{maxi_index}(mini_index_eachcomb(maxi_index), i)-1)/N_dir_uav)+1; 
+        end 
 
         % there are several equal ones... this has some problems, 
         % the best_removal_rate making sense in this scenario

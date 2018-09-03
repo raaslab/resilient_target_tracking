@@ -6,4 +6,3 @@ boxplot(store_no_remo')
 boxplot(store_with_remo')
 
 boxplot(store_remo_rate')
-

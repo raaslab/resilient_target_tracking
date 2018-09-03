@@ -3,13 +3,13 @@
 % the id of this traj
 function [target_cover, n_id_maxtra] = uav_tra_cover_fun()
 
-global N_uavs N_targets
+global N_uavs N_tars
 
 global N_dir_uav
 
-global uavs_pos targets_pos 
+global uavs_pos tars_pos 
 
-global track_length track_width
+global track_length track_width sta_track_length
 
 
  target_cover = cell(N_uavs, N_dir_uav);
@@ -21,14 +21,14 @@ global track_length track_width
  
  for i = 1 : N_uavs
      
-     for j = 1 : N_dir_uav % each robot has N_dir _uav directions
+     for j = 1 : N_dir_uav % each robot has N_dir_uav directions
          
          if j == 1 % up direction
             
-             for k = 1 : N_targets % check all the targets
-                 if targets_pos(k,2) >= uavs_pos(i,2) && ...
-                    targets_pos(k,2) - uavs_pos(i,2) <= track_length && ...
-                    abs(targets_pos(k,1)- uavs_pos(i,1))<=track_width % the targets are above the robot, just use ||x_r-x_t||
+             for k = 1 : N_tars % check all the targets
+                 if tars_pos(k,2) >= uavs_pos(i,2) - sta_track_length/2 && ...
+                    tars_pos(k,2) - (uavs_pos(i,2) - sta_track_length/2) <= track_length && ...
+                    abs(tars_pos(k,1)- uavs_pos(i,1))<=track_width/2 % the targets are above the robot, just use ||x_r-x_t||
                      
                     target_cover{i,j}=[target_cover{i,j}, k]; % store the targets can be tracked if the distance is within tolerance
                  end
@@ -36,10 +36,10 @@ global track_length track_width
              
          elseif j == 2 % down direction
              
-             for k = 1 : N_targets % check all the targets
-                 if targets_pos(k,2) <= uavs_pos(i,2) && ...
-                    uavs_pos(i,2)- targets_pos(k,2) <= track_length && ...
-                    abs(targets_pos(k,1)- uavs_pos(i,1))<=track_width % the targets are below the robot, just use ||x_r-x_t||
+             for k = 1 : N_tars % check all the targets
+                 if tars_pos(k,2) <= uavs_pos(i,2) + sta_track_length/2 && ...
+                    (uavs_pos(i,2)+sta_track_length/2) - tars_pos(k,2) <= track_length && ...
+                    abs(tars_pos(k,1)- uavs_pos(i,1))<=track_width/2 % the targets are below the robot, just use ||x_r-x_t||
                      
                     target_cover{i,j}=[target_cover{i,j}, k]; % store the targets can be tracked if the distance is within tolerance
                  end
@@ -48,10 +48,10 @@ global track_length track_width
                 
          elseif j == 3 % right direction
 
-             for k = 1 : N_targets % check all the targets
-                 if targets_pos(k,1) >= uavs_pos(i,1) && ...
-                    targets_pos(k,1)- uavs_pos(i,1) <= track_length && ...
-                    abs(targets_pos(k,2)- uavs_pos(i,2))<=track_width % the targets are right the robot, just use ||x_r-x_t||
+             for k = 1 : N_tars % check all the targets
+                 if tars_pos(k,1) >= uavs_pos(i,1) - sta_track_length/2&& ...
+                    tars_pos(k,1)- (uavs_pos(i,1) - sta_track_length/2) <= track_length && ...
+                    abs(tars_pos(k,2)- uavs_pos(i,2))<=track_width/2 % the targets are right the robot, just use ||x_r-x_t||
                      
                     target_cover{i,j}=[target_cover{i,j}, k]; % store the targets can be tracked if the distance is within tolerance
                  end
@@ -60,10 +60,10 @@ global track_length track_width
              
          else % left direction
              
-             for k = 1 : N_targets % check all the targets
-                 if targets_pos(k,1) <= uavs_pos(i,1) && ...
-                    uavs_pos(i,1) - targets_pos(k,1) <= track_length && ...
-                    abs(targets_pos(k,2) - uavs_pos(i,2))<=track_width % the targets are left the robot, just use ||x_r-x_t||
+             for k = 1 : N_tars % check all the targets
+                 if tars_pos(k,1) <= uavs_pos(i,1) + sta_track_length/2&& ...
+                    uavs_pos(i,1) + sta_track_length/2  - tars_pos(k,1) <= track_length && ...
+                    abs(tars_pos(k,2) - uavs_pos(i,2))<=track_width/2 % the targets are left the robot, just use ||x_r-x_t||
                      
                     target_cover{i,j}=[target_cover{i,j}, k]; % store the targets can be tracked if the distance is within tolerance
                  end
@@ -79,8 +79,4 @@ global track_length track_width
      n_id_maxtra(i,2) = find(n_target_cover(i,:)==n_id_maxtra(i,1),1); %the id of max_traj
      
  end
- 
- 
-
-
 end 

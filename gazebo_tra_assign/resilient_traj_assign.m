@@ -10,7 +10,7 @@ function resilient_traj_assign(target_cover, n_id_maxtra)
     global N_fail_uavs N_resilience_uavs
 
     global uav_id_set
-        
+    
     traj_assign = zeros(N_uavs,1); % each uav has a assigned traj for publisher control
     uav_tra_assign_inx = cell(1, N_uavs);
 
@@ -20,15 +20,15 @@ function resilient_traj_assign(target_cover, n_id_maxtra)
     n_id_maxtra_store = n_id_maxtra;
     
     
-    for nf = 1 : N_fail_uavs
-        
+    for nf = 1 : N_fail_uavs        
         uav_fail_set(nf) = find(n_id_maxtra_store(:,1)==max(n_id_maxtra_store(:,1)),1); % find the maximum one     
         n_id_maxtra_store(uav_fail_set(nf),1)=0; % set the maximum one to 0
         
         traj_assign(uav_fail_set(nf),1) = n_id_maxtra(uav_fail_set(nf), 2); % find the assign traj for uav,uav_fail_set(nf)  
-        uav_tra_assign_inx{nf} = [uav_fail_set(nf), n_id_maxtra(uav_fail_set(nf), 2)];
-        
+        uav_tra_assign_inx{nf} = [uav_fail_set(nf), n_id_maxtra(uav_fail_set(nf), 2)];        
     end 
+    
+
 
      % greedy resilience from the remining uavs
      
@@ -37,8 +37,7 @@ function resilient_traj_assign(target_cover, n_id_maxtra)
     
     for k = 1:N_resilience_uavs
            
-          resilience_thre=0;
-         
+          resilience_thre=0;         
           for i = 1 : length(uav_resilient_set)
                 for j = 1 : N_dir_uav
                    marg_gain = length(union(target_cover{uav_resilient_set(i),j},uav_greedy_set{k})) - length(uav_greedy_set{k}); 
@@ -66,11 +65,4 @@ function resilient_traj_assign(target_cover, n_id_maxtra)
   %collect the targets tracked before removal, after removal and the
   %removal rate when publish to uav
    desired_pos_publisher(traj_assign, n_assign_cover_resi, remain_best_remo_resi, best_remo_rate_resi); 
-
 end
-
-
-
-   
-   
-   

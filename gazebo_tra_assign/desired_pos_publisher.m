@@ -14,6 +14,10 @@ function desired_pos_publisher(traj_assign, n_assign_cover, remain_best_remo, be
     global desired_pos_pub_uavs desired_pub_msg err_offset desired_pos_track
     
     global store_tar_before_remove store_tar_after_remove store_remove_rate...    
+        
+    global work_status_pub_uavs work_status_uavs 
+        
+    global opt_attacked_uavs
     
     % each uav has a desired x, y ,z
     desired_pos_global = zeros(N_uavs, 3); % in the gazebo on global frame
@@ -58,7 +62,14 @@ function desired_pos_publisher(traj_assign, n_assign_cover, remain_best_remo, be
         %norm(uavs_pos(5,1:2) - desired_pos_track(5,1:2))<= err_offset
 
         desired_pos_track(:,1:2) = desired_pos_global(:,1:2);
-
+        
+        for i = 1:N_uavs 
+           if ismember(i, opt_attacked_uavs) == 1
+               work_status_uavs(i).Data = 0; 
+           else 
+               work_status_uavs(i).Data = 1; 
+           end     
+        end
         %also store the data
         store_tar_before_remove = [store_tar_before_remove, n_assign_cover];
         store_tar_after_remove  = [store_tar_after_remove, remain_best_remo];
@@ -66,37 +77,36 @@ function desired_pos_publisher(traj_assign, n_assign_cover, remain_best_remo, be
         
         %doing some plots to show tar_before_removal, tar_after_remove,
         %remove_rate           
-        figure(1); 
-        cla; hold on;
-        subplot(3,1,1);
-        plot(store_tar_before_remove, '--ro', 'LineWidth',2,...
-                       'MarkerEdgeColor','g',...
-                       'MarkerFaceColor','g',...
-                       'MarkerSize',10)
-        title('Number of targets tracked before optimal removal')
-
-        subplot(3,1,2); 
-        plot(store_tar_after_remove,'--rs', 'LineWidth',2,...
-                       'MarkerEdgeColor','b',...
-                       'MarkerFaceColor','b',...
-                       'MarkerSize',10)
-        
-        title('Number of remaining targets after optimal removal')
-        
-        subplot(3,1,3); 
-        plot(store_remove_rate,'--r*', 'LineWidth',2,...
-                       'MarkerEdgeColor','m',...
-                       'MarkerFaceColor','m',...
-                       'MarkerSize',10)
-        title(' Optimal removal rate')
-        
-        hold off;
+%         figure(1); 
+%         cla; hold on;
+%         subplot(3,1,1);
+%         plot(store_tar_before_remove, '--ro', 'LineWidth',2,...
+%                        'MarkerEdgeColor','g',...
+%                        'MarkerFaceColor','g',...
+%                        'MarkerSize',10)
+%         title('Number of targets tracked before optimal removal')
+% 
+%         subplot(3,1,2); 
+%         plot(store_tar_after_remove,'--rs', 'LineWidth',2,...
+%                        'MarkerEdgeColor','b',...
+%                        'MarkerFaceColor','b',...
+%                        'MarkerSize',10)
+%         
+%         title('Number of remaining targets after optimal removal')
+%         
+%         subplot(3,1,3); 
+%         plot(store_remove_rate,'--r*', 'LineWidth',2,...
+%                        'MarkerEdgeColor','m',...
+%                        'MarkerFaceColor','m',...
+%                        'MarkerSize',10)
+%         title(' Optimal removal rate')
+%         
+%         hold off;
         
     else  % the robots havn't gone to the desired positions 
 
     end
      
-
     for i = 1:N_uavs
 
         %then calculate the desired pos in local gazebo frame 
@@ -108,8 +118,11 @@ function desired_pos_publisher(traj_assign, n_assign_cover, remain_best_remo, be
         desired_pub_msg.Y = desired_pos_local(i,2);
         desired_pub_msg.Z = desired_pos_track(i,3); % the height needs not change
 
-
-        send(desired_pos_pub_uavs(i), desired_pub_msg);
+        send(desired_pos_pub_uavs(i), desired_pub_msg);        
+            %publish the uav_work status
+    
+   
+        send(work_status_pub_uavs(i), work_status_uavs(i));         
 
     end
           

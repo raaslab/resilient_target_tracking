@@ -44,7 +44,7 @@ function greedy_traj_assign(target_cover)
             
              %desired pos_publish, keep publishing desired for each uav. 
              %collect the targets tracked before removal, after removal and the
-             %removal rate when publish to uav
+             %removal rate when publish to uavs_greedy_index
             desired_pos_publisher(traj_assign, N_greedy_cover, gre_remain_best_remo, best_remo_rate_gre); 
                         
             
